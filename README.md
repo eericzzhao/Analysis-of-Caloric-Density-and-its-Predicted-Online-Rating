@@ -253,11 +253,11 @@ We chose **Precision** as our parity measure. Precision tells us how often the m
 * **Significance Level ($\alpha$):** 0.05.
 
 ### Results & Conclusion
-* **Observed Difference:** `[Insert obs_diff from your code]`
-* **P-value:** `[Insert p_val from your code]`
+* **Observed Difference:** `0.0087`
+* **P-value:** `0.2030`
 
 **Conclusion:**
-With a p-value of `[Insert p_val]`, we **[reject / fail to reject]** the null hypothesis. 
+With a p-value of `0.2030`, we **fail to reject** the null hypothesis. 
 
 > [If P > 0.05]: This suggests that our model achieves **precision parity** across caloric densities. The model is equally "reliable" when predicting 5-star success for a light salad as it is for a heavy dessert.
 > [If P < 0.05]: This suggests that our model may be biased, performing significantly better or worse at identifying quality for one group. This could be due to differences in how users rate "comfort foods" versus "health foods."
