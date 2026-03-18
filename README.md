@@ -235,3 +235,35 @@ We used `GridSearchCV` to perform a cross-validated search for the optimal model
 
 **Was the model an improvement?**
 While the increase in $F_1$-score was marginal, the Final Model represents a significant improvement in **generalization**. Our baseline model was a "majority class classifier" that guessed 5 stars for every recipe. By introducing a Random Forest and nutritional ratios, our Final Model began to predict some "Class 0" (Not Perfect) instances, showing it is actually learning patterns in the data rather than just mirroring the class distribution.
+
+## 8. Fairness Analysis
+
+To conclude our project, we investigated whether our model exhibits any bias toward specific types of recipes. Specifically, we asked: **"Is our model's precision different for high-calorie recipes compared to low-calorie recipes?"**
+
+### Group Definitions
+* **Group X (Low Calorie)**: Recipes with total calories at or below the median ($ \leq 310$ calories).
+* **Group Y (High Calorie)**: Recipes with total calories above the median ($> 310$ calories).
+
+### Evaluation Metric & Hypotheses
+We chose **Precision** as our parity measure. Precision tells us how often the model is correct when it predicts a recipe will be "Perfect." 
+
+* **Null Hypothesis ($H_0$):** Our model is fair. Its precision for high-calorie and low-calorie recipes is roughly the same, and any observed differences are due to random chance.
+* **Alternative Hypothesis ($H_a$):** Our model is unfair. Its precision for high-calorie recipes is significantly different from its precision for low-calorie recipes.
+* **Test Statistic:** The absolute difference in precision between the two groups.
+* **Significance Level ($\alpha$):** 0.05.
+
+### Results & Conclusion
+* **Observed Difference:** `[Insert obs_diff from your code]`
+* **P-value:** `[Insert p_val from your code]`
+
+**Conclusion:**
+With a p-value of `[Insert p_val]`, we **[reject / fail to reject]** the null hypothesis. 
+
+> [If P > 0.05]: This suggests that our model achieves **precision parity** across caloric densities. The model is equally "reliable" when predicting 5-star success for a light salad as it is for a heavy dessert.
+> [If P < 0.05]: This suggests that our model may be biased, performing significantly better or worse at identifying quality for one group. This could be due to differences in how users rate "comfort foods" versus "health foods."
+
+<iframe
+  src="assets/fairness_test.html"
+  width="800"
+  height="600"
+  frameborder="0"></iframe>
