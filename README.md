@@ -141,3 +141,37 @@ We grouped the recipes by their **Caloric Density** to see how other nutritional
 | **Above Median** | 58.1 | 54.2 | 4.61 |
 
 **Significance:** This table shows that "Above Median" calorie recipes also have significantly higher mean sugar and fat content. Interestingly, despite the significant jump in "unhealthiness," the average rating remains almost identical across both groups. This suggests that Food.com users do not necessarily rate recipes higher just because they are richer or sweeter.
+
+## Assessment of Missingness
+
+### MNAR Analysis
+We believe that the `rating` column in our dataset is likely **MNAR (Missing Not At Random)**. 
+
+The reasoning lies in the data generating process: a user’s decision to leave a rating is often tied to the unobserved value of the rating itself. For instance, a user who feels "neutral" about a recipe (neither loving nor hating it) may be less motivated to return to the site and leave a review. In contrast, those with extreme opinions (1-star or 5-star) are more likely to make the effort to rate. Because the missingness is related to the "quality" of the recipe which we are trying to measure, it is MNAR.
+
+To transition this to **MAR (Missing At Random)**, we would need additional data such as "Time Spent on Page" or "User Login Frequency." If we knew how much time a user spent on a recipe page, we might find that the missingness of a rating is actually dependent on their engagement level rather than the recipe's quality itself.
+
+---
+
+### Missingness Dependency
+We conducted permutation tests to determine if the missingness of the `rating` column depends on other variables in the dataset.
+
+#### 1. Does Depend: Rating Missingness vs. Minutes
+* **Null Hypothesis**: The distribution of 'minutes' is the same regardless of whether the rating is missing or not.
+* **Test Statistic**: Kolmogorov-Smirnov (KS) Statistic.
+* **Result**: With a **p-value of approximately 0.00** (below our 0.05 threshold), we **reject the null hypothesis**. 
+* **Conclusion**: The missingness of ratings **depends** on the preparation time of the recipe.
+
+<iframe
+  src="assets/missingness_dist.html"
+  width="800"
+  height="600"
+  frameborder="0"></iframe>
+
+**Interpretation**: As seen in the plot, recipes with missing ratings tend to have a different distribution of cooking times compared to those that are rated. Longer recipes may be more prone to missing ratings because users are less likely to complete the cooking process or feel "burned out" by the complexity.
+
+#### 2. Does Not Depend: Rating Missingness vs. N_Steps
+* **Null Hypothesis**: The distribution of 'n_steps' (number of steps) is the same regardless of whether the rating is missing or not.
+* **Test Statistic**: Kolmogorov-Smirnov (KS) Statistic.
+* **Result**: We obtained a **p-value of ~0.45** (well above 0.05).
+* **Conclusion**: We **fail to reject the null hypothesis**. The missingness of the rating does **not** appear to depend on the number of steps in the recipe.
