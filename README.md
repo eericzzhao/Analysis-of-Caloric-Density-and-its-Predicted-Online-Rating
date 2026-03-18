@@ -166,3 +166,25 @@ With a p-value of `0.067`, we **fail to reject** the null hypothesis at the 0.05
   frameborder="0"></iframe>
 
 **Note:** While our test provides statistical evidence, it does not imply a causal relationship. Other factors like recipe complexity or specific ingredients (e.g., chocolate vs. kale) likely play a more nuanced role in user satisfaction.
+
+## 6. Baseline Model
+
+In this step, we built a basic classification model to predict whether a recipe would receive a perfect 5.0 rating.
+
+### Model Description
+We implemented a **Logistic Regression** model within a Scikit-Learn `Pipeline`. Logistic Regression was chosen for its simplicity and interpretability as a baseline classifier.
+
+### Features in the Model
+We used two features from our original dataset:
+1. **`calories` (Quantitative)**: The total caloric content of the recipe.
+2. **`n_steps` (Quantitative)**: The number of steps required to complete the recipe.
+
+### Transformations and Encodings
+* **Imputation**: We used a `SimpleImputer` with a "median" strategy. While our cleaning process handled most missing values, this ensures the model is robust to any outliers or unexpected nulls in future data.
+* **Scaling**: We applied a `StandardScaler` to both features. Since calories can range into the thousands while `n_steps` usually stays under 50, scaling ensures that the model does not disproportionately weight the "calories" feature due to its larger numerical magnitude.
+
+### Performance Evaluation
+* **Training F1-Score:** `[Insert f1_train]`
+* **Test F1-Score:** `[Insert f1_test]`
+
+**Is the model "good"?** Our baseline model achieved an F1-score of approximately `[Insert Score]`. While this is better than random guessing, the precision and recall are relatively low, suggesting that calories and the number of steps alone are not powerful enough predictors of recipe quality. This is expected for a baseline, and we plan to improve this by engineering more complex features in the next step.
