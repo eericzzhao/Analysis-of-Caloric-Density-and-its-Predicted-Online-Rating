@@ -4,7 +4,7 @@ This project investigates the relationship between the nutritional profile of a 
 
 ---
 
-## 1. Introduction & Motivation
+## Introduction
 With the steady rise in restaurant prices, home cooking has shifted from a hobby to a financial necessity for many households. However, home recipes are often non-standardized, making user reviews the primary compass for determining if a dish is "worth it."
 
 Our team is exploring what specifically makes a recipe successful. Does a high-calorie "comfort" dish naturally garner better reviews, or do users prefer lighter options?
@@ -33,7 +33,7 @@ The analysis is performed on a dataset sourced from **Food.com**, containing tho
 | **n_steps** | The number of steps required to complete the recipe. |
 
 
-## 2. Data Cleaning and Exploratory Data Analysis
+## Data Cleaning and Exploratory Data Analysis
 
 ### Data Cleaning
 To ensure our dataset was ready for a rigorous analysis of caloric density and ratings, we performed the following cleaning and preprocessing steps:
@@ -101,7 +101,7 @@ We grouped the recipes by their **Caloric Density** to see how other nutritional
 
 **Significance:** This table shows that "Above Median" calorie recipes also have significantly higher mean sugar and fat content. Interestingly, despite the significant jump in "unhealthiness," the average rating remains almost identical across both groups. This suggests that Food.com users do not necessarily rate recipes higher just because they are richer or sweeter.
 
-## 3. Assessment of Missingness
+## Assessment of Missingness
 
 ### MNAR Analysis
 We believe that the `rating` column in our dataset is likely **MNAR (Missing Not At Random)**. 
@@ -135,7 +135,7 @@ We conducted permutation tests to determine if the missingness of the `rating` c
 * **Result**: We obtained a **p-value of ~0.45** (well above 0.05).
 * **Conclusion**: We **fail to reject the null hypothesis**. The missingness of the rating does **not** appear to depend on the number of steps in the recipe.
 
-## 4. Hypothesis Testing
+## Hypothesis Testing
 
 In this section, we test whether the caloric density of a recipe has a statistically significant impact on its average user rating.
 
@@ -167,7 +167,7 @@ With a p-value of `0.067`, we **fail to reject** the null hypothesis at the 0.05
 
 **Note:** While our test provides statistical evidence, it does not imply a causal relationship. Other factors like recipe complexity or specific ingredients (e.g., chocolate vs. kale) likely play a more nuanced role in user satisfaction.
 
-## 5. Framing a Prediction Problem
+## Framing a Prediction Problem
 * **Problem**: Predict if a recipe will receive a "Perfect 5.0" rating (**Binary Classification**).
 * **Target**: `is_perfect_rating` (1 for 5.0, 0 for < 5.0).
 * **Evaluation Metric**: **F1-Score**. We chose this to balance precision and recall, as accurately identifying the 43% of "non-perfect" recipes is just as important as identifying the 57% of perfect ones.
@@ -175,7 +175,7 @@ With a p-value of `0.067`, we **fail to reject** the null hypothesis at the 0.05
 
 ---
 
-## 6. Baseline Model
+## Baseline Model
 
 In this stage, we developed a basic machine learning pipeline to establish a performance "floor" for our prediction task.
 
@@ -204,7 +204,7 @@ We evaluated the model's ability to **generalize to unseen data** using a 25% te
 
 Since approximately 57% of our recipes have a perfect rating, the model has learned that it can achieve 57% accuracy simply by predicting a "1" (Perfect) for every single input. Consequently, its **Recall for Class 0 (non-perfect ratings) is 0.00**. The model is effectively failing to distinguish between a 5-star recipe and a lower-rated one; it is merely mirroring the distribution of the dataset. This baseline highlights that calories and step counts alone are insufficient predictors, setting the stage for more complex feature engineering in the next step.
 
-## 7. Final Model
+## Final Model
 
 In this stage, we evolved our prediction strategy by moving from a simple linear baseline to a more robust non-linear algorithm, supported by custom-engineered nutritional features.
 
@@ -236,7 +236,7 @@ We used `GridSearchCV` to perform a cross-validated search for the optimal model
 **Was the model an improvement?**
 While the increase in $F_1$-score was marginal, the Final Model represents a significant improvement in **generalization**. Our baseline model was a "majority class classifier" that guessed 5 stars for every recipe. By introducing a Random Forest and nutritional ratios, our Final Model began to predict some "Class 0" (Not Perfect) instances, showing it is actually learning patterns in the data rather than just mirroring the class distribution.
 
-## 8. Fairness Analysis
+## Fairness Analysis
 
 To conclude our project, we investigated whether our model exhibits any bias toward specific types of recipes. Specifically, we asked: **"Is our model's precision different for high-calorie recipes compared to low-calorie recipes?"**
 
