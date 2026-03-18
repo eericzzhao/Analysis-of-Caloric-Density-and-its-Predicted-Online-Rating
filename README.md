@@ -14,10 +14,11 @@ Our team is exploring what specifically makes a recipe successful. Does a high-c
 
 ---
 
-## 2. Dataset Overview
+### Dataset Overview
 The analysis is performed on a dataset sourced from **Food.com**, containing thousands of recipes and their corresponding user interactions.
 
-* **Total Rows:** `[Enter Number]`
+* **Total Rows:** `83782`
+* **Total Columns:** `19`
 * **Target Variable:** `rating` (Classified into Above/Below Median)
 
 ### Relevant Features
@@ -31,50 +32,8 @@ The analysis is performed on a dataset sourced from **Food.com**, containing tho
 | **rating** | The average user rating (1–5 scale). |
 | **n_steps** | The number of steps required to complete the recipe. |
 
-## Data Cleaning and Exploratory Data Analysis
 
-### Data Cleaning
-To transform the raw Food.com data into a format suitable for analysis, we performed the following cleaning steps:
-
-1. **Merging & Aggregation**: We joined the `recipes` dataset with the `interactions` dataset. Because our analysis focuses on recipe-level quality, we calculated the **average rating** for each recipe and merged this back into the main recipes table.
-2. **Handling Placeholder Ratings**: We identified that many ratings were recorded as `0`. On Food.com, users can leave a text review without selecting a star rating, which results in a `0` in the data. To avoid skewing our averages toward zero, we replaced these values with `NaN`.
-3. **Nutritional Feature Extraction**: The `nutrition` column was originally a string of lists. We parsed this column to create individual numeric columns for **Calories, Total Fat, Sugar, Sodium, Protein, Saturated Fat, and Carbohydrates**. This allows us to perform mathematical operations on specific nutrients.
-4. **Unit Verification**: All nutritional values (except calories) were confirmed to be in **Percentage Daily Value (PDV)**, ensuring a standardized scale for comparing "sweetness" or "fatness" across different serving sizes.
-
-#### Cleaned Data Header (First 5 Rows)
-| name | id | minutes | calories | total_fat | sugar | avg_rating |
-| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
-| 1 pot savory stews | 40893 | 35 | 160.2 | 10.0 | 5.0 | 4.67 |
-| 10 minute tomato soup | 24044 | 10 | 258.1 | 14.0 | 12.0 | 5.00 |
-| ... | ... | ... | ... | ... | ... | ... |
-
----
-
-### Univariate Analysis
-
-In this section, we examine the distributions of our target variable (ratings) and our primary predictor (calories).
-
-#### Distribution of Average Ratings
-<iframe
-  src="assets/ratings_dist.html"
-  width="800"
-  height="600"
-  frameborder="0"></iframe>
-
-**Interpretation:** The distribution of average ratings is significantly left-skewed, with a massive concentration of recipes receiving a perfect 5.0 score. This suggests a "positivity bias" common in online recipe platforms, where users are more likely to rate recipes they enjoyed.
-
-#### Distribution of Calories
-<iframe
-  src="assets/calories_dist.html"
-  width="800"
-  height="600"
-  frameborder="0"></iframe>
-
-**Interpretation:** Calories follow a right-skewed distribution. While the majority of recipes fall between 200 and 600 calories (typical for a standard meal), there is a "long tail" of high-calorie recipes that likely represent large-batch items or high-density desserts.
-
----
-
-## Data Cleaning and Exploratory Data Analysis
+## 2. Data Cleaning and Exploratory Data Analysis
 
 ### Data Cleaning
 To ensure our dataset was ready for a rigorous analysis of caloric density and ratings, we performed the following cleaning and preprocessing steps:
@@ -142,7 +101,7 @@ We grouped the recipes by their **Caloric Density** to see how other nutritional
 
 **Significance:** This table shows that "Above Median" calorie recipes also have significantly higher mean sugar and fat content. Interestingly, despite the significant jump in "unhealthiness," the average rating remains almost identical across both groups. This suggests that Food.com users do not necessarily rate recipes higher just because they are richer or sweeter.
 
-## Assessment of Missingness
+## 3. Assessment of Missingness
 
 ### MNAR Analysis
 We believe that the `rating` column in our dataset is likely **MNAR (Missing Not At Random)**. 
@@ -175,3 +134,35 @@ We conducted permutation tests to determine if the missingness of the `rating` c
 * **Test Statistic**: Kolmogorov-Smirnov (KS) Statistic.
 * **Result**: We obtained a **p-value of ~0.45** (well above 0.05).
 * **Conclusion**: We **fail to reject the null hypothesis**. The missingness of the rating does **not** appear to depend on the number of steps in the recipe.
+
+## 4. Hypothesis Testing
+
+In this section, we test whether the caloric density of a recipe has a statistically significant impact on its average user rating.
+
+### The Hypotheses
+* **Null Hypothesis ($H_0$):** The average rating for high-calorie recipes (above median) and low-calorie recipes (below median) is the same. Any observed difference is due to random chance in how users rate recipes.
+* **Alternative Hypothesis ($H_1$):** High-calorie recipes receive a different average rating than low-calorie recipes. 
+
+### Test Statistic and Significance Level
+* **Test Statistic:** The difference in means (Above Median Mean - Below Median Mean) of the average ratings.
+* **Significance Level ($\alpha$):** 0.05.
+
+We chose a **permutation test** because we do not want to assume that the ratings follow a specific normal distribution. By shuffling the labels, we can create a custom distribution of differences that reflects our specific dataset.
+
+### Result and Conclusion
+* **Observed Difference:** `-0.008163764334407908`
+* **P-value:** `0.067`
+
+#### Conclusion
+With a p-value of `0.067`, we **fail to reject** the null hypothesis at the 0.05 significance level. 
+
+**Interpretation:** > [IF P < 0.05]: This suggests that the difference in ratings between high and low-calorie recipes is statistically significant and unlikely to be due to chance alone. 
+> [IF P > 0.05]: This suggests that there is no significant evidence to suggest that caloric density influences how highly a user rates a recipe on Food.com.
+
+<iframe
+  src="assets/hypothesis_test_dist.html"
+  width="800"
+  height="600"
+  frameborder="0"></iframe>
+
+**Note:** While our test provides statistical evidence, it does not imply a causal relationship. Other factors like recipe complexity or specific ingredients (e.g., chocolate vs. kale) likely play a more nuanced role in user satisfaction.
