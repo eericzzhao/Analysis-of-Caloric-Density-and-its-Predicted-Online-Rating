@@ -71,15 +71,73 @@ In this section, we examine the distributions of our target variable (ratings) a
   frameborder="0"></iframe>
 
 **Interpretation:** Calories follow a right-skewed distribution. While the majority of recipes fall between 200 and 600 calories (typical for a standard meal), there is a "long tail" of high-calorie recipes that likely represent large-batch items or high-density desserts.
+
 ---
 
-### Bivariate Analysis
-We explored the relationship between a recipe's "unhealthiness" (sugar content) and its user reception.
+## Data Cleaning and Exploratory Data Analysis
+
+### Data Cleaning
+To ensure our dataset was ready for a rigorous analysis of caloric density and ratings, we performed the following cleaning and preprocessing steps:
+
+1. **Dataset Integration**: We performed a **left merge** of the `recipes` dataset with the `interactions` (ratings) dataset. This associated every individual user review with the specific nutritional metadata of the recipe.
+2. **Standardizing Ratings**: We identified that many ratings were recorded as `0`. On Food.com, a `0` typically indicates a user who left a review/comment without selecting a star rating. To prevent these from skewing our average ratings downward, we replaced all `0` values with `NaN`.
+3. **Calculating Recipe Quality**: We computed the **average rating** for each unique recipe and merged this "Global Average" back into our main recipe DataFrame.
+4. **Nutritional Feature Engineering**: The `nutrition` column was originally stored as a string representation of a list (e.g., `"[150.2, 10.0, ... ]"`). We parsed these strings and expanded them into seven distinct numerical columns: `calories`, `total_fat_pdv`, `sugar_pdv`, `sodium_pdv`, `protein_pdv`, `saturated_fat_pdv`, and `carbohydrates_pdv`. 
+5. **Caloric Categorization**: To facilitate our bivariate analysis, we created a categorical column, `calorie_density`, which labels recipes as "Above Median" or "Below Median" based on the dataset's median calorie count.
+
+#### Cleaned Data Head
+Below are the first few rows of our processed dataset:
+
+| name | id | minutes | calories | total_fat_pdv | sugar_pdv | avg_rating |
+| :--- | :--- | :--- | :--- | :--- | :--- | :--- |
+| 1 pot savory stews | 40893 | 35 | 160.2 | 10.0 | 5.0 | 4.67 |
+| 10 minute tomato soup | 24044 | 10 | 258.1 | 14.0 | 12.0 | 5.00 |
+| 11 calorie per serving soup | 41725 | 30 | 11.2 | 0.0 | 3.0 | 4.25 |
+| 12 calorie mushroom soup | 12735 | 20 | 12.5 | 0.0 | 2.0 | 5.00 |
+| 13 bean soup | 15002 | 125 | 450.8 | 2.0 | 15.0 | 4.00 |
+
+---
+
+### Univariate Analysis
+We examined the individual distributions of ratings and calories to understand the characteristics of recipes on Food.com.
 
 <iframe
-  src="assets/sugar_vs_rating.html"
+  src="assets/ratings_dist.html"
   width="800"
   height="600"
   frameborder="0"></iframe>
 
-**Interpretation**: While one might expect "sweeter" recipes to have higher ratings, the scatter plot shows a fairly uniform distribution of high ratings across all sugar levels. This suggests that sweetness alone isn't a guaranteed driver of high ratings.
+**Interpretation:** The average ratings are heavily left-skewed, with the vast majority of recipes clustering around a 5.0 score. This suggests a significant "positivity bias" among users who take the time to rate recipes.
+
+<iframe
+  src="assets/calories_dist.html"
+  width="800"
+  height="600"
+  frameborder="0"></iframe>
+
+**Interpretation:** Calorie counts are right-skewed; while most recipes fall within a standard meal range (200–700 calories), there is a long tail of high-calorie outliers extending beyond 2,000 calories.
+
+---
+
+### Bivariate Analysis
+To explore the relationship between nutrition and reception, we looked at how ratings vary across different caloric densities.
+
+<iframe
+  src="assets/rating_vs_calories_box.html"
+  width="800"
+  height="600"
+  frameborder="0"></iframe>
+
+**Interpretation:** This box plot compares the distribution of average ratings for high-calorie vs. low-calorie recipes. Both groups share a median rating of 5.0, though low-calorie recipes appear to have a slightly wider spread of lower ratings (outliers).
+
+---
+
+### Interesting Aggregates
+We grouped the recipes by their **Caloric Density** to see how other nutritional factors change alongside total calories.
+
+| Calorie Density | Mean Sugar (PDV) | Mean Total Fat (PDV) | Mean Avg Rating |
+| :--- | :--- | :--- | :--- |
+| **Below Median** | 22.4 | 12.8 | 4.63 |
+| **Above Median** | 58.1 | 54.2 | 4.61 |
+
+**Significance:** This table shows that "Above Median" calorie recipes also have significantly higher mean sugar and fat content. Interestingly, despite the significant jump in "unhealthiness," the average rating remains almost identical across both groups. This suggests that Food.com users do not necessarily rate recipes higher just because they are richer or sweeter.
