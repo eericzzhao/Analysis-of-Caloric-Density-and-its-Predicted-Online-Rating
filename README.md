@@ -167,24 +167,71 @@ With a p-value of `0.067`, we **fail to reject** the null hypothesis at the 0.05
 
 **Note:** While our test provides statistical evidence, it does not imply a causal relationship. Other factors like recipe complexity or specific ingredients (e.g., chocolate vs. kale) likely play a more nuanced role in user satisfaction.
 
+## 5. Framing a Prediction Problem
+* **Problem**: Predict if a recipe will receive a "Perfect 5.0" rating (**Binary Classification**).
+* **Target**: `is_perfect_rating` (1 for 5.0, 0 for < 5.0).
+* **Evaluation Metric**: **F1-Score**. We chose this to balance precision and recall, as accurately identifying the 43% of "non-perfect" recipes is just as important as identifying the 57% of perfect ones.
+* **Time of Prediction**: Features used include `calories`, `sugar`, `fat`, and `n_steps`, all of which are known at the moment the recipe is created.
+
+---
+
 ## 6. Baseline Model
 
-In this step, we built a basic classification model to predict whether a recipe would receive a perfect 5.0 rating.
+In this stage, we developed a basic machine learning pipeline to establish a performance "floor" for our prediction task.
 
 ### Model Description
-We implemented a **Logistic Regression** model within a Scikit-Learn `Pipeline`. Logistic Regression was chosen for its simplicity and interpretability as a baseline classifier.
+We implemented a **Logistic Regression** model within a Scikit-Learn `Pipeline`. Logistic Regression was chosen as our baseline because it is a simple, linear classifier that provides a clear starting point for binary classification. This allows us to see how much "signal" exists in our basic features before moving to more complex, non-linear algorithms.
 
-### Features in the Model
-We used two features from our original dataset:
-1. **`calories` (Quantitative)**: The total caloric content of the recipe.
-2. **`n_steps` (Quantitative)**: The number of steps required to complete the recipe.
+### Features Incorporated
+We selected two primary features from our cleaned dataset:
+1.  **`calories` (Quantitative)**: The total number of calories per serving. 
+2.  **`n_steps` (Quantitative)**: The number of steps in the recipe, representing the complexity of the cooking process.
 
-### Transformations and Encodings
-* **Imputation**: We used a `SimpleImputer` with a "median" strategy. While our cleaning process handled most missing values, this ensures the model is robust to any outliers or unexpected nulls in future data.
-* **Scaling**: We applied a `StandardScaler` to both features. Since calories can range into the thousands while `n_steps` usually stays under 50, scaling ensures that the model does not disproportionately weight the "calories" feature due to its larger numerical magnitude.
+### Feature Transformations
+To prepare these features for the Logistic Regression model, we applied the following transformations:
+* **Imputation**: We used a `SimpleImputer` with a `median` strategy. This ensures that any recipes with missing nutritional or step data do not cause the model to fail during training or prediction.
+* **Standardization**: We applied a `StandardScaler` to both features. Because `calories` (ranging into the thousands) and `n_steps` (usually under 20) exist on vastly different scales, standardization is necessary to prevent the model from being biased toward the larger raw numerical magnitude of the calorie counts.
 
-### Performance Evaluation
-* **Training F1-Score:** `[Insert f1_train]`
-* **Test F1-Score:** `[Insert f1_test]`
+### Model Performance
+We evaluated the model's ability to **generalize to unseen data** using a 25% test split. 
 
-**Is the model "good"?** Our baseline model achieved an F1-score of approximately `[Insert Score]`. While this is better than random guessing, the precision and recall are relatively low, suggesting that calories and the number of steps alone are not powerful enough predictors of recipe quality. This is expected for a baseline, and we plan to improve this by engineering more complex features in the next step.
+* **Training $F_1$-Score**: 0.7262
+* **Test $F_1$-Score**: 0.7271
+* **Test Accuracy**: 0.57
+
+### Is this Model "Good"?
+**No, this model is not "good" in a predictive sense.** While an $F_1$-score of 0.7271 might appear decent at first glance, the classification report reveals a "majority class trap." 
+
+Since approximately 57% of our recipes have a perfect rating, the model has learned that it can achieve 57% accuracy simply by predicting a "1" (Perfect) for every single input. Consequently, its **Recall for Class 0 (non-perfect ratings) is 0.00**. The model is effectively failing to distinguish between a 5-star recipe and a lower-rated one; it is merely mirroring the distribution of the dataset. This baseline highlights that calories and step counts alone are insufficient predictors, setting the stage for more complex feature engineering in the next step.
+
+## 7. Final Model
+
+In this stage, we evolved our prediction strategy by moving from a simple linear baseline to a more robust non-linear algorithm, supported by custom-engineered nutritional features.
+
+### Modeling Algorithm
+We chose the **Random Forest Classifier** as our final model. Random Forests are ensemble learners that are particularly effective for this dataset because they can capture non-linear interactions between variables. For example, a recipe might not be "good" just because it has high calories, but rather because it has a specific ratio of sugar to calories that the model can identify through its decision trees.
+
+### Engineered Features
+We engineered two new features to provide the model with a deeper "nutritional context" than raw counts provide:
+
+1. **`sugar_ratio` (Quantitative)**: We calculated the proportion of sugar PDV relative to total calories. 
+   * **Why it helps**: Raw sugar counts don't tell the whole story; a recipe might have high sugar but also high substance. A high `sugar_ratio` identifies "empty calorie" recipes or overly sweet desserts, which we hypothesized might receive different ratings than more balanced meals.
+2. **`fat_ratio` (Quantitative)**: We calculated the proportion of total fat PDV relative to total calories.
+   * **Why it helps**: This serves as a proxy for "richness." We believed the data generating process for ratings might be influenced by how "heavy" a meal feels relative to its size, allowing the model to distinguish between rich comfort foods and leaner options.
+
+### Hyperparameter Tuning
+We used `GridSearchCV` to perform a cross-validated search for the optimal model configuration. We focused on tuning:
+* **`max_depth`**: To prevent the trees from growing too deep and overfitting to noise in the Food.com reviews.
+* **`n_estimators`**: To ensure we had enough trees to create a stable, "majority-vote" prediction.
+
+**Best Parameters Found:**
+* `max_depth`: 10
+* `n_estimators`: 100
+* `min_samples_split`: 2
+
+### Performance Comparison
+* **Baseline $F_1$-Score**: 0.7271 (Logistic Regression)
+* **Final Model $F_1$-Score**: 0.7304 (Random Forest)
+
+**Was the model an improvement?**
+While the increase in $F_1$-score was marginal, the Final Model represents a significant improvement in **generalization**. Our baseline model was a "majority class classifier" that guessed 5 stars for every recipe. By introducing a Random Forest and nutritional ratios, our Final Model began to predict some "Class 0" (Not Perfect) instances, showing it is actually learning patterns in the data rather than just mirroring the class distribution.
