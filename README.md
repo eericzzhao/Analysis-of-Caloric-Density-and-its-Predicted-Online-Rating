@@ -51,16 +51,26 @@ To transform the raw Food.com data into a format suitable for analysis, we perfo
 ---
 
 ### Univariate Analysis
-In this section, we looked at the distribution of our primary features. 
 
+In this section, we examine the distributions of our target variable (ratings) and our primary predictor (calories).
+
+#### Distribution of Average Ratings
+<iframe
+  src="assets/ratings_dist.html"
+  width="800"
+  height="600"
+  frameborder="0"></iframe>
+
+**Interpretation:** The distribution of average ratings is significantly left-skewed, with a massive concentration of recipes receiving a perfect 5.0 score. This suggests a "positivity bias" common in online recipe platforms, where users are more likely to rate recipes they enjoyed.
+
+#### Distribution of Calories
 <iframe
   src="assets/calories_dist.html"
   width="800"
   height="600"
   frameborder="0"></iframe>
 
-**Interpretation**: The distribution of calories is heavily right-skewed. Most recipes are concentrated under 1,000 calories, but a significant number of "outlier" recipes (likely large-batch desserts or holiday roasts) extend the tail significantly.
-
+**Interpretation:** Calories follow a right-skewed distribution. While the majority of recipes fall between 200 and 600 calories (typical for a standard meal), there is a "long tail" of high-calorie recipes that likely represent large-batch items or high-density desserts.
 ---
 
 ### Bivariate Analysis
